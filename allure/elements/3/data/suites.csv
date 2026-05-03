@@ -1,0 +1,2 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","3363","insurance page key elements are present @smoke","chromium","Sun May 03 05:50:03 UTC 2026","passed","Sun May 03 05:50:06 UTC 2026","","insurance-elements.spec.ts","",""

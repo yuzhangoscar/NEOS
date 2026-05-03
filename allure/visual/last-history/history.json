@@ -1,0 +1,1 @@
+{"69d1b61facbf93b6110a958a9cfc7d90:5bd835b0d6b1d4ada3b9f0db936e82c8":{"statistic":{"failed":0,"broken":0,"skipped":0,"passed":1,"unknown":0,"total":1},"items":[{"uid":"d4a3ba15329ce7c1","reportUrl":"https://yuzhangoscar.github.io/NEOS/allure/visual/3/#testresult/d4a3ba15329ce7c1","status":"passed","time":{"start":1777786417600,"stop":1777786421494,"duration":3894}}]}}

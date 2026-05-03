@@ -1,0 +1,80 @@
+name: Docker Sequential Test Suites
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['main']
+  pull_request:
+
+jobs:
+  sequential-suites:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      DEFAULT_BASE_URL: https://www.neosprotect.com.au/
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Resolve BASE_URL
+        run: |
+          if [ -n "${{ vars.BASE_URL }}" ]; then
+            echo "BASE_URL=${{ vars.BASE_URL }}" >> "$GITHUB_ENV"
+          else
+            echo "BASE_URL=${DEFAULT_BASE_URL}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Build Docker image
+        run: docker build -t neos-playwright-tests:${{ github.sha }} .
+
+      - name: Prepare artifact folders
+        run: |
+          mkdir -p artifacts/sequential/visual/playwright-report
+          mkdir -p artifacts/sequential/visual/test-results
+          mkdir -p artifacts/sequential/visual/allure-results
+          mkdir -p artifacts/sequential/elements/playwright-report
+          mkdir -p artifacts/sequential/elements/test-results
+          mkdir -p artifacts/sequential/elements/allure-results
+          mkdir -p artifacts/sequential/accessibility/playwright-report
+          mkdir -p artifacts/sequential/accessibility/test-results
+          mkdir -p artifacts/sequential/accessibility/allure-results
+
+      - name: Run visual suite in Docker
+        run: |
+          docker run --rm \
+            -e BASE_URL="${BASE_URL}" \
+            -e CI=true \
+            -v "${{ github.workspace }}/artifacts/sequential/visual/playwright-report:/app/playwright-report" \
+            -v "${{ github.workspace }}/artifacts/sequential/visual/test-results:/app/test-results" \
+            -v "${{ github.workspace }}/artifacts/sequential/visual/allure-results:/app/allure-results" \
+            neos-playwright-tests:${{ github.sha }} npm run test:visual
+
+      - name: Run elements suite in Docker
+        run: |
+          docker run --rm \
+            -e BASE_URL="${BASE_URL}" \
+            -e CI=true \
+            -v "${{ github.workspace }}/artifacts/sequential/elements/playwright-report:/app/playwright-report" \
+            -v "${{ github.workspace }}/artifacts/sequential/elements/test-results:/app/test-results" \
+            -v "${{ github.workspace }}/artifacts/sequential/elements/allure-results:/app/allure-results" \
+            neos-playwright-tests:${{ github.sha }} npm run test:e2e -- --grep @smoke
+
+      - name: Run accessibility suite in Docker
+        run: |
+          docker run --rm \
+            -e BASE_URL="${BASE_URL}" \
+            -e CI=true \
+            -v "${{ github.workspace }}/artifacts/sequential/accessibility/playwright-report:/app/playwright-report" \
+            -v "${{ github.workspace }}/artifacts/sequential/accessibility/test-results:/app/test-results" \
+            -v "${{ github.workspace }}/artifacts/sequential/accessibility/allure-results:/app/allure-results" \
+            neos-playwright-tests:${{ github.sha }} npm run test:a11y
+
+      - name: Upload sequential suite artifacts
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: sequential-suite-artifacts
+          path: artifacts/sequential/
+          if-no-files-found: ignore
+          retention-days: 14

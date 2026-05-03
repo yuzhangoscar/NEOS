@@ -5,6 +5,12 @@ on:
   push:
     branches: ['main']
   pull_request:
+permissions:
+  contents: write
+
+concurrency:
+  group: neos-allure-pages
+  cancel-in-progress: false
 
 jobs:
   sequential-suites:
@@ -41,6 +47,8 @@ jobs:
           mkdir -p artifacts/sequential/accessibility/allure-results
 
       - name: Run visual suite in Docker
+        id: run_visual
+        continue-on-error: true
         run: |
           docker run --rm \
             -e BASE_URL="${BASE_URL}" \
@@ -51,6 +59,9 @@ jobs:
             neos-playwright-tests:${{ github.sha }} npm run test:visual
 
       - name: Run elements suite in Docker
+        id: run_elements
+        if: ${{ steps.run_visual.outcome == 'success' }}
+        continue-on-error: true
         run: |
           docker run --rm \
             -e BASE_URL="${BASE_URL}" \
@@ -61,6 +72,9 @@ jobs:
             neos-playwright-tests:${{ github.sha }} npm run test:e2e -- --grep @smoke
 
       - name: Run accessibility suite in Docker
+        id: run_accessibility
+        if: ${{ steps.run_visual.outcome == 'success' && steps.run_elements.outcome == 'success' }}
+        continue-on-error: true
         run: |
           docker run --rm \
             -e BASE_URL="${BASE_URL}" \
@@ -78,3 +92,60 @@ jobs:
           path: artifacts/sequential/
           if-no-files-found: ignore
           retention-days: 14
+
+      - name: Merge sequential Allure results
+        if: ${{ always() }}
+        run: |
+          mkdir -p allure-results-sequential
+          for suite in visual elements accessibility; do
+            SUITE_RESULTS="artifacts/sequential/${suite}/allure-results"
+            if [ -d "${SUITE_RESULTS}" ]; then
+              cp -R "${SUITE_RESULTS}/." allure-results-sequential/
+            fi
+          done
+
+      - name: Get Allure history
+        if: ${{ always() }}
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Build Allure report with history
+        if: ${{ always() }}
+        uses: simple-elf/allure-report-action@v1.13
+        with:
+          gh_pages: gh-pages
+          allure_results: allure-results-sequential
+          allure_report: allure-report
+          allure_history: allure-history
+          subfolder: allure/sequential
+          keep_reports: 30
+
+      - name: Publish Allure report to GitHub Pages
+        if: ${{ always() }}
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-history
+          keep_files: true
+
+      - name: Print Allure report URL
+        if: ${{ always() }}
+        run: |
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          BASE_REPORT_URL="https://${GITHUB_REPOSITORY_OWNER}.github.io/${REPO_NAME}/allure/sequential/"
+          RUN_REPORT_URL="${BASE_REPORT_URL}${GITHUB_RUN_NUMBER}/"
+          echo "::notice title=Allure Report URL::${RUN_REPORT_URL}"
+          echo "Allure report URL: ${RUN_REPORT_URL}"
+          {
+            echo "### Allure report (sequential suites)"
+            echo "- Latest: ${BASE_REPORT_URL}"
+            echo "- This run: ${RUN_REPORT_URL}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail workflow if any sequential suite failed
+        if: ${{ steps.run_visual.outcome == 'failure' || steps.run_elements.outcome == 'failure' || steps.run_accessibility.outcome == 'failure' }}
+        run: exit 1

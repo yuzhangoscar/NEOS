@@ -1,4 +1,30 @@
 # NEOS
+
+![Docker Visual Suite](https://github.com/yuzhangoscar/NEOS/actions/workflows/docker-visual-suite.yml/badge.svg)
+![Docker Elements Suite](https://github.com/yuzhangoscar/NEOS/actions/workflows/docker-elements-suite.yml/badge.svg)
+![Docker Accessibility Suite](https://github.com/yuzhangoscar/NEOS/actions/workflows/docker-accessibility-suite.yml/badge.svg)
+![Docker Sequential Suites](https://github.com/yuzhangoscar/NEOS/actions/workflows/docker-sequential-suites.yml/badge.svg)
+
+### Core
+
+![Playwright](https://img.shields.io/npm/v/@playwright/test?label=Playwright&color=2EAD33)
+![TypeScript](https://img.shields.io/npm/v/typescript?label=TypeScript&color=3178C6)
+![Node.js](https://img.shields.io/badge/Node.js-≥20_LTS-339933)
+
+### Testing & Quality
+
+![axe-core](https://img.shields.io/npm/v/@axe-core/playwright?label=axe-core%2Fplaywright&color=663399)
+![Allure](https://img.shields.io/npm/v/allure-playwright?label=Allure%20Playwright&color=FF6600)
+![ESLint](https://img.shields.io/npm/v/eslint?label=ESLint&color=4B32C3)
+![Commitlint](https://img.shields.io/npm/v/@commitlint/cli?label=Commitlint&color=000000)
+![Husky](https://img.shields.io/npm/v/husky?label=Husky&color=42B983)
+
+### Performance
+
+![Gatling Core](https://img.shields.io/npm/v/@gatling.io/core?label=Gatling%20Core&color=FF6600)
+![Gatling HTTP](https://img.shields.io/npm/v/@gatling.io/http?label=Gatling%20HTTP&color=FF6600)
+![Gatling CLI](https://img.shields.io/npm/v/@gatling.io/cli?label=Gatling%20CLI&color=FF6600)
+
 Playwright-based frontend testing setup for insurance pages, including:
 - Headless and headed local execution
 - GitHub Actions headless execution
@@ -8,10 +34,11 @@ Playwright-based frontend testing setup for insurance pages, including:
 - ESLint for test code review quality
 - Commit message validation with Commitlint + Husky
 - Dockerized test execution
+- Performance load testing with Gatling
 
 ## 1) Prerequisites
-- Node.js (LTS recommended)
-- npm
+- Node.js ≥20 (LTS recommended)
+- npm ≥10
 - Docker (for containerized execution)
 
 ## 2) Install dependencies

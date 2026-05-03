@@ -1,20 +1,8 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures/insurance-landing.fixture';
 
-const requiredSelectors =
-  process.env.REQUIRED_SELECTORS?.split(';').map((selector) => selector.trim()).filter(Boolean) ?? [
-    'header, [role="banner"]',
-    'main, [role="main"]',
-    'footer, [role="contentinfo"]',
-  ];
+test('insurance page key elements are present @smoke', async ({ insuranceLanding }) => {
+  const adviserLogin = insuranceLanding.getByRole('listitem')
+  .filter({ hasText: /^Adviser login$/i });
 
-test('insurance page key elements are present @smoke', async ({ page }) => {
-  await page.goto('/');
-  await page.waitForLoadState('domcontentloaded');
-
-  for (const selector of requiredSelectors) {
-    await expect(
-      page.locator(selector).first(),
-      `Expected selector "${selector}" to be visible on the insurance page.`,
-    ).toBeVisible();
-  }
+  await expect(adviserLogin, 'Adviser login should be visible.').toBeVisible();
 });

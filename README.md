@@ -27,8 +27,7 @@ cp .env.example .env
 ```
 
 Defaults:
-- `BASE_URL=https://www.progressive.com`
-- `REQUIRED_SELECTORS=header, [role="banner"];main, [role="main"];footer, [role="contentinfo"]`
+- `BASE_URL=https://www.neosprotect.com.au/`
 
 ## 4) Run tests locally
 Headless:

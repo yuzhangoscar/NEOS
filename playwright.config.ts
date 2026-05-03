@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const baseURL = process.env.BASE_URL ?? 'https://www.progressive.com';
+const baseURL = process.env.BASE_URL ?? 'https://www.neosprotect.com.au/';
 
 export default defineConfig({
   testDir: './tests',
